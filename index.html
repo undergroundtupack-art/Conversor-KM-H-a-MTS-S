@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>km/h → m/s</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#0b0f10">
+<style>
+  :root{
+    --bg: #0b0f10;
+    --panel: #12181a;
+    --line: #1e2a2d;
+    --accent: #39ff88;
+    --accent-dim: #1f6b45;
+    --text: #e8f3ee;
+    --text-dim: #6f8a83;
+    --amber: #ffb020;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    height:100%;
+    background:
+      radial-gradient(circle at 50% -10%, #16201f 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family: 'Courier New', ui-monospace, monospace;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:24px 16px;
+  }
+  .device{
+    width:100%;
+    max-width:380px;
+    background:linear-gradient(180deg, #141c1e, #0e1415);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:22px 20px 26px;
+    box-shadow:
+      0 30px 60px -20px rgba(0,0,0,0.7),
+      inset 0 1px 0 rgba(255,255,255,0.03);
+    position:relative;
+  }
+  .device::before{
+    content:"";
+    position:absolute;
+    top:12px; left:50%;
+    transform:translateX(-50%);
+    width:36px; height:4px;
+    border-radius:2px;
+    background:var(--line);
+  }
+  .label-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-top:14px;
+    margin-bottom:18px;
+  }
+  .brand{
+    font-size:11px;
+    letter-spacing:0.2em;
+    color:var(--text-dim);
+    text-transform:uppercase;
+  }
+  .brand b{ color:var(--accent); }
+  .unit-pill{
+    font-size:10px;
+    letter-spacing:0.15em;
+    color:var(--accent);
+    border:1px solid var(--accent-dim);
+    padding:3px 8px;
+    border-radius:20px;
+  }
+
+  .readout{
+    background:#070a0a;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 18px;
+    margin-bottom:14px;
+  }
+  .readout .tag{
+    font-size:10px;
+    letter-spacing:0.2em;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    display:flex;
+    justify-content:space-between;
+  }
+  .kmh-input{
+    width:100%;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:inherit;
+    font-size:44px;
+    font-weight:bold;
+    letter-spacing:0.01em;
+    margin-top:4px;
+    -moz-appearance:textfield;
+  }
+  .kmh-input::-webkit-outer-spin-button,
+  .kmh-input::-webkit-inner-spin-button{
+    -webkit-appearance:none; margin:0;
+  }
+  .kmh-input::placeholder{ color:#2b3a38; }
+
+  .arrow{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:var(--accent-dim);
+    font-size:18px;
+    margin:2px 0 10px;
+  }
+
+  .result{
+    background:linear-gradient(180deg, #0c1512, #070a0a);
+    border:1px solid var(--accent-dim);
+    border-radius:12px;
+    padding:16px 18px;
+  }
+  .result .tag{
+    font-size:10px;
+    letter-spacing:0.2em;
+    color:var(--accent);
+    text-transform:uppercase;
+    display:flex;
+    justify-content:space-between;
+  }
+  .result .value{
+    font-size:44px;
+    font-weight:bold;
+    color:var(--accent);
+    margin-top:4px;
+    text-shadow: 0 0 18px rgba(57,255,136,0.35);
+    word-break:break-all;
+  }
+
+  .presets{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-top:16px;
+  }
+  .preset-btn{
+    background:#0e1415;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    font-family:inherit;
+    font-size:12px;
+    padding:9px 0;
+    border-radius:8px;
+    cursor:pointer;
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .preset-btn:active{
+    background:var(--accent-dim);
+    color:var(--bg);
+    border-color:var(--accent);
+  }
+
+  .formula{
+    margin-top:16px;
+    text-align:center;
+    font-size:11px;
+    color:var(--text-dim);
+    letter-spacing:0.03em;
+  }
+  .formula span{ color:var(--accent); }
+</style>
+</head>
+<body>
+
+  <div class="device">
+    <div class="label-row">
+      <div class="brand">CONVERSOR · <b>VELOCIDAD</b></div>
+      <div class="unit-pill">v1.0</div>
+    </div>
+
+    <div class="readout">
+      <div class="tag"><span>ENTRADA</span><span>KM/H</span></div>
+      <input
+        class="kmh-input"
+        id="kmh"
+        type="number"
+        inputmode="decimal"
+        placeholder="0"
+        autofocus
+      />
+    </div>
+
+    <div class="arrow">▼</div>
+
+    <div class="result">
+      <div class="tag"><span>RESULTADO</span><span>M/S</span></div>
+      <div class="value" id="ms">0</div>
+    </div>
+
+    <div class="presets">
+      <button class="preset-btn" data-v="60">60</button>
+      <button class="preset-btn" data-v="80">80</button>
+      <button class="preset-btn" data-v="100">100</button>
+      <button class="preset-btn" data-v="130">130</button>
+    </div>
+
+    <div class="formula">m/s = km/h ÷ <span>3.6</span></div>
+  </div>
+
+<script>
+  const kmhInput = document.getElementById('kmh');
+  const msOutput = document.getElementById('ms');
+
+  function formatResult(n){
+    if (!isFinite(n)) return '0';
+    return n.toFixed(2);
+  }
+
+  function update(){
+    const kmh = parseFloat(kmhInput.value);
+    if (isNaN(kmh)){
+      msOutput.textContent = '0';
+      return;
+    }
+    const ms = kmh / 3.6;
+    msOutput.textContent = formatResult(ms);
+  }
+
+  kmhInput.addEventListener('input', update);
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      kmhInput.value = btn.dataset.v;
+      update();
+      kmhInput.focus();
+    });
+  });
+
+  update();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+
+</body>
+</html>
